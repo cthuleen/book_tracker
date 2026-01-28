@@ -31,7 +31,7 @@ def create_table():
 def insert_book(title, author):
 
     # Use 'with' to open and close the connection automatically
-    with sqlite3.connect('my_database.db') as connection:
+    with sqlite3.connect('db/my_database.db') as connection:
         cursor = connection.cursor()
 
         # Insert a record into the Students table
@@ -57,7 +57,7 @@ def insert_book(title, author):
 
 def fetch():
     # Use 'with' to connect to the SQLite database
-    with sqlite3.connect('my_database.db') as connection:
+    with sqlite3.connect('db/my_database.db') as connection:
 
         # Create a cursor object
         cursor = connection.cursor()
@@ -80,12 +80,11 @@ def fetch():
 
 
         # SQL command to select book records that are unfinished (and not currently being read)
-        select_unfinished = "SELECT * FROM Books WHERE is_reading = 'NO' AND times_read > 0;"
+        select_unfinished = "SELECT * FROM Books WHERE is_reading = 'NO' AND times_read = 0;"
         cursor.execute(select_unfinished)
 
         # Fetch all returned records
         unfinished = cursor.fetchall()
-
 
         return (currently_reading, finished, unfinished)
 
