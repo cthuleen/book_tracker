@@ -55,6 +55,52 @@ def insert_book(title, author):
         print("Record inserted successfully!")
 
 
+def start_reading(title, author):
+
+    # Use 'with' to connect to the SQLite database
+    with sqlite3.connect('db/my_database.db') as connection:
+        cursor = connection.cursor()
+
+        # SQL command to update a book record from not being read to being read
+        update_query = '''
+        UPDATE Books 
+        SET is_reading = ? 
+        WHERE title = ? AND author = ?;
+        '''
+
+        # Execute the SQL command with the data
+        cursor.execute(update_query, ("YES", title, author))
+
+        # Commit the changes to save the update
+        connection.commit()
+
+        # Print a confirmation message
+        print(f"Updated reading status for {title} by {author} to YES.")
+
+
+def mark_unfinished(title, author):
+
+    # Use 'with' to connect to the SQLite database
+    with sqlite3.connect('db/my_database.db') as connection:
+        cursor = connection.cursor()
+
+        # SQL command to update a book record from being read to not being read
+        update_query = '''
+        UPDATE Books 
+        SET is_reading = ? 
+        WHERE title = ? AND author = ?;
+        '''
+
+        # Execute the SQL command with the data
+        cursor.execute(update_query, ("NO", title, author))
+
+        # Commit the changes to save the update
+        connection.commit()
+
+        # Print a confirmation message
+        print(f"Updated reading status for {title} by {author} to NO.")
+
+
 def fetch():
     # Use 'with' to connect to the SQLite database
     with sqlite3.connect('db/my_database.db') as connection:

@@ -20,8 +20,14 @@ class App(tk.Tk):
         self.frm_form = tk.Frame(self)
         self.frm_tables = tk.Frame(self)
 
+        self.frm_unfinished = tk.Frame(self.frm_tables)
+        self.frm_reading = tk.Frame(self.frm_tables)
+
         self.frm_form.grid(row=0, column=0)
         self.frm_tables.grid(row=0, column=1, padx=20)
+
+        self.frm_unfinished.grid(row=0, column=0, pady=10)
+        self.frm_reading.grid(row=1, column=0, pady=10)
 
         # widgets for the book submission form (two label/entry pairs and a button)
         self.lbl_title = tk.Label(master=self.frm_form, text="Enter book title:")
@@ -39,23 +45,47 @@ class App(tk.Tk):
 
         self.btn_form.grid(row=2, column=1, sticky="EW", pady=5)
 
+        # Unfinished
         # unfinished table frame
-        self.lbl_unfinished = tk.Label(master=self.frm_tables, text="Unfinished Books")
+        self.lbl_unfinished = tk.Label(master=self.frm_unfinished, text="Unfinished Books")
+        self.btn_unfinished_to_reading = tk.Button(master=self.frm_unfinished, text="Begin Reading?", command=self.begin_reading)
 
         # Define columns (the first column '#0' is the default tree column)
         columns = ('book_title', 'book_author', 'begin_again')
-        self.tree = ttk.Treeview(self.frm_tables, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+        self.unfinished_tree = ttk.Treeview(self.frm_unfinished, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
 
         # Define headings
-        self.tree.heading('book_title', text='Title')
-        self.tree.heading('book_author', text='Author')
-        self.tree.heading('begin_again', text='Begin Again?')
+        self.unfinished_tree.heading('book_title', text='Title')
+        self.unfinished_tree.heading('book_author', text='Author')
+        self.unfinished_tree.heading('begin_again', text='Begin Again?')
+
+        # Reading
+        # currently reading table frame
+        self.lbl_reading = tk.Label(master=self.frm_reading, text="Currently Reading")
+        self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading, text="Mark unfinished?", command=self.mark_unfinished)
+
+        # Define columns (the first column '#0' is the default tree column)
+        columns = ('book_title', 'book_author', 'finished', 'did_not_finish')
+        self.reading_tree = ttk.Treeview(self.frm_reading, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+
+        # Define headings
+        self.reading_tree.heading('book_title', text='Title')
+        self.reading_tree.heading('book_author', text='Author')
+        self.reading_tree.heading('finished', text='Finished?')
+        self.reading_tree.heading('did_not_finish', text='Didn\'t finish?')
+
 
         # load books from db into tables
         self.load()
 
         self.lbl_unfinished.grid(row=0, column=0, pady=5)
-        self.tree.grid(row=1, column=0)
+        self.btn_unfinished_to_reading.grid(row=0, column=1, padx=10)
+        self.unfinished_tree.grid(row=1, column=0)
+
+        self.lbl_reading.grid(row=0, column=0, pady=5)
+        self.btn_reading_to_unfinished.grid(row=0, column=1, padx=10)
+        self.reading_tree.grid(row=1, column=1)
+
 
 
         
@@ -74,8 +104,30 @@ class App(tk.Tk):
         ''' load books from db into tables'''
         currently_reading, finished, unfinished = sqlite.fetch()
 
+        for book in currently_reading:
+            self.reading_tree.insert('', tk.END, values=(book[1], book[2], "TBD", "TBD"))
+
         for book in unfinished:
-            self.tree.insert('', tk.END, values=(book[1], book[2], "TBD"))
+            self.unfinished_tree.insert('', tk.END, values=(book[1], book[2], "TBD"))
+
+    def begin_reading(self):
+        selected_item = self.unfinished_tree.selection() # returns tuple of selected item id's
+
+        if selected_item:
+            item_id = selected_item[0]
+            item_data = self.unfinished_tree.item(item_id, 'values') # returns tuple of book's title and author
+
+            sqlite.start_reading(item_data[0], item_data[1])
+
+    def mark_unfinished(self):
+        selected_item = self.reading_tree.selection() # returns tuple of selected item id's
+
+        if selected_item:
+            item_id = selected_item[0]
+            item_data = self.reading_tree.item(item_id, 'values') # returns tuple of book's title and author
+
+            sqlite.mark_unfinished(item_data[0], item_data[1])
+
 
     # def __init__(self):
     # 
