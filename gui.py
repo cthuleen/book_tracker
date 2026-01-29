@@ -23,29 +23,43 @@ class App(tk.Tk):
         self.frm_form.grid(row=0, column=0)
         self.frm_tables.grid(row=0, column=1, padx=20)
 
-
+        # Frames for each section: reading, unfinished, & finished
         self.frm_reading = tk.Frame(self.frm_tables)
+        self.frm_unfinished = tk.Frame(self.frm_tables)
+        self.frm_finished = tk.Frame(self.frm_tables)
+
+        self.frm_reading.grid(row=0, column=0, padx=10)
+        self.frm_unfinished.grid(row=0, column=1, padx=10)
+        self.frm_finished.grid(row=0, column=2, padx=10)
+        
+        # Subframes for reading
         self.frm_reading_lbl = tk.Frame(self.frm_reading)
         self.frm_reading_tree = tk.Frame(self.frm_reading)
         self.frm_reading_btns = tk.Frame(self.frm_reading)
-
-        self.frm_reading.grid(row=0, column=0, padx=10)
+        
         self.frm_reading_lbl.grid(row=0, column=0)
         self.frm_reading_tree.grid(row=1, column=0, pady=5)
         self.frm_reading_btns.grid(row=2, column=0, pady=5)
         
 
-        self.frm_unfinished = tk.Frame(self.frm_tables)
+        # Subframes for unfinished
         self.frm_unfinished_lbl = tk.Frame(self.frm_unfinished)
         self.frm_unfinished_tree = tk.Frame(self.frm_unfinished)
         self.frm_unfinished_btns = tk.Frame(self.frm_unfinished)
 
-        self.frm_unfinished.grid(row=0, column=1, padx=10)
         self.frm_unfinished_lbl.grid(row=0, column=0)
         self.frm_unfinished_tree.grid(row=1, column=0, pady=5)
         self.frm_unfinished_btns.grid(row=2, column=0, pady=5)
 
 
+        # Subframes for finished
+        self.frm_finished_lbl = tk.Frame(self.frm_finished)
+        self.frm_finished_tree = tk.Frame(self.frm_finished)
+        self.frm_finished_btns = tk.Frame(self.frm_finished)
+
+        self.frm_finished_lbl.grid(row=0, column=0)
+        self.frm_finished_tree.grid(row=1, column=0, pady=5)
+        self.frm_finished_btns.grid(row=2, column=0, pady=5)
 
         
 
@@ -65,18 +79,6 @@ class App(tk.Tk):
 
         self.btn_form.grid(row=2, column=1, sticky="EW", pady=5)
 
-        # Unfinished
-        # unfinished table frame
-        self.lbl_unfinished = tk.Label(master=self.frm_unfinished_lbl, text="Unfinished Books")
-        self.btn_unfinished_to_reading = tk.Button(master=self.frm_unfinished_btns, text="Begin Reading?", command=self.begin_reading)
-
-        # Define columns (the first column '#0' is the default tree column)
-        columns = ('book_title', 'book_author')
-        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
-
-        # Define headings
-        self.unfinished_tree.heading('book_title', text='Title')
-        self.unfinished_tree.heading('book_author', text='Author')
 
         # Reading
         # currently reading table frame
@@ -92,16 +94,52 @@ class App(tk.Tk):
         self.reading_tree.heading('book_author', text='Author')
 
 
+        # Unfinished
+        # unfinished table frame
+        self.lbl_unfinished = tk.Label(master=self.frm_unfinished_lbl, text="Unfinished Books")
+        self.btn_unfinished_to_reading = tk.Button(master=self.frm_unfinished_btns, text="Begin Reading?", command=self.begin_reading)
+
+        # Define columns (the first column '#0' is the default tree column)
+        columns = ('book_title', 'book_author')
+        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+
+        # Define headings
+        self.unfinished_tree.heading('book_title', text='Title')
+        self.unfinished_tree.heading('book_author', text='Author')
+
+
+        #Finished
+        # finished label and button
+        self.lbl_finished = tk.Label(master=self.frm_finished_lbl, text="Finished Books")
+        self.btn_finished_to_reading = tk.Button(master=self.frm_finished_btns, text="Reread?", command=self.reread)
+
+        # finished tree
+        columns = ('book_title', 'book_author')
+        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+
+        # Define headings
+        self.finished_tree.heading('book_title', text='Title')
+        self.finished_tree.heading('book_author', text='Author')
+
+        
+
+
         # load books from db into tables
         self.load()
+
+        self.lbl_reading.grid(row=0, column=0, pady=5)
+        self.btn_reading_to_unfinished.grid(row=0, column=1, padx=10)
+        self.reading_tree.grid(row=1, column=1)
 
         self.lbl_unfinished.grid(row=0, column=0, pady=5)
         self.btn_unfinished_to_reading.grid(row=0, column=1, padx=10)
         self.unfinished_tree.grid(row=1, column=0)
 
-        self.lbl_reading.grid(row=0, column=0, pady=5)
-        self.btn_reading_to_unfinished.grid(row=0, column=1, padx=10)
-        self.reading_tree.grid(row=1, column=1)
+        self.lbl_finished.grid(row=0, column=0, pady=5)
+        self.btn_finished_to_reading.grid(row=0, column=1, padx=10)
+        self.finished_tree.grid(row=1, column=0)
+
+        
 
 
 
@@ -138,6 +176,20 @@ class App(tk.Tk):
             self.reading_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
 
             sqlite.start_reading(item_data[0], item_data[1])
+
+
+    def reread(self):
+        selected_item = self.finished_tree.selection() # returns tuple of selected item id's
+
+        if selected_item:
+            item_id = selected_item[0]
+            item_data = self.finished_tree.item(item_id, 'values') # returns tuple of book's title and author
+
+            self.finished_tree.delete(item_id)
+            self.reading_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
+
+            sqlite.start_reading(item_data[0], item_data[1])
+
 
     def mark_unfinished(self):
         selected_item = self.reading_tree.selection() # returns tuple of selected item id's
