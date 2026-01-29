@@ -51,13 +51,12 @@ class App(tk.Tk):
         self.btn_unfinished_to_reading = tk.Button(master=self.frm_unfinished, text="Begin Reading?", command=self.begin_reading)
 
         # Define columns (the first column '#0' is the default tree column)
-        columns = ('book_title', 'book_author', 'begin_again')
+        columns = ('book_title', 'book_author')
         self.unfinished_tree = ttk.Treeview(self.frm_unfinished, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
 
         # Define headings
         self.unfinished_tree.heading('book_title', text='Title')
         self.unfinished_tree.heading('book_author', text='Author')
-        self.unfinished_tree.heading('begin_again', text='Begin Again?')
 
         # Reading
         # currently reading table frame
@@ -65,14 +64,12 @@ class App(tk.Tk):
         self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading, text="Mark unfinished?", command=self.mark_unfinished)
 
         # Define columns (the first column '#0' is the default tree column)
-        columns = ('book_title', 'book_author', 'finished', 'did_not_finish')
+        columns = ('book_title', 'book_author')
         self.reading_tree = ttk.Treeview(self.frm_reading, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
 
         # Define headings
         self.reading_tree.heading('book_title', text='Title')
         self.reading_tree.heading('book_author', text='Author')
-        self.reading_tree.heading('finished', text='Finished?')
-        self.reading_tree.heading('did_not_finish', text='Didn\'t finish?')
 
 
         # load books from db into tables
@@ -105,10 +102,10 @@ class App(tk.Tk):
         currently_reading, finished, unfinished = sqlite.fetch()
 
         for book in currently_reading:
-            self.reading_tree.insert('', tk.END, values=(book[1], book[2], "TBD", "TBD"))
+            self.reading_tree.insert('', tk.END, values=(book[1], book[2]))
 
         for book in unfinished:
-            self.unfinished_tree.insert('', tk.END, values=(book[1], book[2], "TBD"))
+            self.unfinished_tree.insert('', tk.END, values=(book[1], book[2]))
 
     def begin_reading(self):
         selected_item = self.unfinished_tree.selection() # returns tuple of selected item id's
@@ -116,6 +113,9 @@ class App(tk.Tk):
         if selected_item:
             item_id = selected_item[0]
             item_data = self.unfinished_tree.item(item_id, 'values') # returns tuple of book's title and author
+
+            self.unfinished_tree.delete(item_id)
+            self.reading_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
 
             sqlite.start_reading(item_data[0], item_data[1])
 
@@ -125,6 +125,9 @@ class App(tk.Tk):
         if selected_item:
             item_id = selected_item[0]
             item_data = self.reading_tree.item(item_id, 'values') # returns tuple of book's title and author
+
+            self.reading_tree.delete(item_id)
+            self.unfinished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
 
             sqlite.mark_unfinished(item_data[0], item_data[1])
 
