@@ -1,13 +1,12 @@
 import sqlite3
 
 def create_table():
-    # Use 'with' to connect to the SQLite database and automatically close the connection when done
+    ''' Create the Book table, if it doesn't exist'''
+
     with sqlite3.connect('db/my_database.db') as connection:
 
-        # Create a cursor object
         cursor = connection.cursor()
 
-        # Write the SQL command to create the Book table
         create_table_query = '''
         CREATE TABLE IF NOT EXISTS Books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,141 +17,112 @@ def create_table():
         );
         '''
 
-        # Execute the SQL command
         cursor.execute(create_table_query)
 
         connection.commit()
 
         print("Database created and connected successfully!")
 
-    # No need to call connection.close(); it's done automatically!
 
 
 def insert_book(title, author):
+    ''' Add a new record, a book, to the Book table'''
 
-    # Use 'with' to open and close the connection automatically
     with sqlite3.connect('db/my_database.db') as connection:
         cursor = connection.cursor()
 
-        # Insert a record into the Students table
         insert_query = '''
         INSERT INTO Books (title, author, is_reading, times_read) 
         VALUES (?, ?, ?, ?);
         '''
-
-        # the '?' are placeholders into which the following tuple will be passed
-        # this is done to prevent SQL injection
 
         # initialize is_reading to "NO" and times_read to 0
         book_tuple = (title, author, "NO", 0)
 
         cursor.execute(insert_query, book_tuple)
 
-        # Commit the changes automatically
         connection.commit()
 
-        # No need to call connection.close(); it's done automatically!
         print("Record inserted successfully!")
 
 
 def start_reading(title, author):
+    ''' Update is_reading of a book from NO to YES '''
 
-    # Use 'with' to connect to the SQLite database
     with sqlite3.connect('db/my_database.db') as connection:
         cursor = connection.cursor()
 
-        # SQL command to update a book record from not being read to being read
         update_query = '''
         UPDATE Books 
         SET is_reading = ? 
         WHERE title = ? AND author = ?;
         '''
 
-        # Execute the SQL command with the data
         cursor.execute(update_query, ("YES", title, author))
 
-        # Commit the changes to save the update
         connection.commit()
 
-        # Print a confirmation message
         print(f"Updated reading status for {title} by {author} to YES.")
 
 
 def mark_unfinished(title, author):
+    ''' Update is_reading of a book from YES to NO '''
 
-    # Use 'with' to connect to the SQLite database
     with sqlite3.connect('db/my_database.db') as connection:
         cursor = connection.cursor()
 
-        # SQL command to update a book record from being read to not being read
         update_query = '''
         UPDATE Books 
         SET is_reading = ? 
         WHERE title = ? AND author = ?;
         '''
 
-        # Execute the SQL command with the data
         cursor.execute(update_query, ("NO", title, author))
 
-        # Commit the changes to save the update
         connection.commit()
 
-        # Print a confirmation message
         print(f"Updated reading status for {title} by {author} to NO.")
 
 
 def mark_finished(title, author):
+    ''' Update is_reading of a book from YES to NO and increment times_read'''
 
-    # Use 'with' to connect to the SQLite database
     with sqlite3.connect('db/my_database.db') as connection:
         cursor = connection.cursor()
 
-        # SQL command to update a book record from being read to not being read, and increment times_read
         update_query = '''
         UPDATE Books 
         SET is_reading = ?,  times_read = times_read + 1
         WHERE title = ? AND author = ?;
         '''
 
-        # Execute the SQL command with the data
         cursor.execute(update_query, ("NO",title, author))
 
-        # Commit the changes to save the update
         connection.commit()
 
-        # Print a confirmation message
         print(f"Updated reading status for {title} by {author} to NO.")
 
 
 def fetch():
-    # Use 'with' to connect to the SQLite database
+    '''Fetch all the books from the table and sort them into currently reading, finished, and unfinished'''
+
     with sqlite3.connect('db/my_database.db') as connection:
 
-        # Create a cursor object
         cursor = connection.cursor()
 
-
-        # SQL command to select book records that are currently being read
+        # Currently reading
         select_currently_reading = "SELECT * FROM Books WHERE is_reading = 'YES';"
         cursor.execute(select_currently_reading)
-
-        # Fetch all returned records
         currently_reading = cursor.fetchall()
 
-
-        # SQL command to select book records that have been finished (and aren't currently being read)
+        # Finished
         select_finished = "SELECT * FROM Books WHERE is_reading = 'NO' AND times_read > 0;"
         cursor.execute(select_finished)
-
-        # Fetch all returned records
         finished = cursor.fetchall()
 
-
-        # SQL command to select book records that are unfinished (and not currently being read)
+        # Unfinished
         select_unfinished = "SELECT * FROM Books WHERE is_reading = 'NO' AND times_read = 0;"
         cursor.execute(select_unfinished)
-
-        # Fetch all returned records
         unfinished = cursor.fetchall()
 
         return (currently_reading, finished, unfinished)

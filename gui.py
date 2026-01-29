@@ -86,7 +86,7 @@ class App(tk.Tk):
         self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading_btns, text="Mark unfinished?", command=self.mark_unfinished)
         self.btn_reading_to_finished = tk.Button(master=self.frm_reading_btns, text="Mark finished?", command=self.mark_finished)
 
-        # Define columns (the first column '#0' is the default tree column)
+        # Define columns 
         columns = ('book_title', 'book_author')
         self.reading_tree = ttk.Treeview(self.frm_reading_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
 
@@ -100,9 +100,9 @@ class App(tk.Tk):
         self.lbl_unfinished = tk.Label(master=self.frm_unfinished_lbl, text="Unfinished Books")
         self.btn_unfinished_to_reading = tk.Button(master=self.frm_unfinished_btns, text="Begin Reading?", command=self.begin_reading)
 
-        # Define columns (the first column '#0' is the default tree column)
+        # Define columns 
         columns = ('book_title', 'book_author')
-        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings') 
 
         # Define headings
         self.unfinished_tree.heading('book_title', text='Title')
@@ -116,7 +116,7 @@ class App(tk.Tk):
 
         # finished tree
         columns = ('book_title', 'book_author')
-        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, show='headings')
 
         # Define headings
         self.finished_tree.heading('book_title', text='Title')
@@ -141,13 +141,6 @@ class App(tk.Tk):
         self.btn_finished_to_reading.grid(row=0, column=0, padx=10)
         self.finished_tree.grid(row=0, column=0)
 
-        
-
-
-
-        
-
-
     
     def submit(self):
         ''' add book from form to database'''
@@ -167,6 +160,9 @@ class App(tk.Tk):
         for book in unfinished:
             self.unfinished_tree.insert('', tk.END, values=(book[1], book[2]))
 
+        for book in finished:
+            self.finished_tree.insert('', tk.END, values=(book[1], book[2]))
+
 
     # Function for books in unfinished
     def begin_reading(self):
@@ -183,11 +179,11 @@ class App(tk.Tk):
 
     # Function for books in finished
     def reread(self):
-        selected_item = self.finished_tree.selection() # returns tuple of selected item id's
+        selected_item = self.finished_tree.selection() 
 
         if selected_item:
             item_id = selected_item[0]
-            item_data = self.finished_tree.item(item_id, 'values') # returns tuple of book's title and author
+            item_data = self.finished_tree.item(item_id, 'values') 
 
             self.finished_tree.delete(item_id)
             self.reading_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
@@ -197,11 +193,11 @@ class App(tk.Tk):
 
     # Functions for books in Reading
     def mark_unfinished(self):
-        selected_item = self.reading_tree.selection() # returns tuple of selected item id's
+        selected_item = self.reading_tree.selection()
 
         if selected_item:
             item_id = selected_item[0]
-            item_data = self.reading_tree.item(item_id, 'values') # returns tuple of book's title and author
+            item_data = self.reading_tree.item(item_id, 'values') 
 
             self.reading_tree.delete(item_id)
             self.unfinished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
@@ -210,11 +206,11 @@ class App(tk.Tk):
 
     
     def mark_finished(self):
-        selected_item = self.reading_tree.selection() # returns tuple of selected item id's
+        selected_item = self.reading_tree.selection() 
 
         if selected_item:
             item_id = selected_item[0]
-            item_data = self.reading_tree.item(item_id, 'values') # returns tuple of book's title and author
+            item_data = self.reading_tree.item(item_id, 'values') 
 
             self.reading_tree.delete(item_id)
             self.finished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
