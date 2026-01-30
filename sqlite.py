@@ -26,7 +26,10 @@ def create_table():
 
 
 def insert_book(title, author):
-    ''' Add a new record, a book, to the Book table'''
+    ''' 
+        Add a new record, a book, to the Book table
+        Returns False if not valid input, and True otherwise
+    '''
 
     with sqlite3.connect('db/my_database.db') as connection:
 
@@ -41,7 +44,7 @@ def insert_book(title, author):
 
             if title == existing_title:
                 print("Book already exists!")
-                return
+                return False
 
 
         cursor = connection.cursor()
@@ -59,6 +62,7 @@ def insert_book(title, author):
         connection.commit()
 
         print("Record inserted successfully!")
+        return True
 
 
 def start_reading(title, author):

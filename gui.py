@@ -143,12 +143,21 @@ class App(tk.Tk):
 
     
     def submit(self):
-        ''' add book from form to database'''
+        ''' add book from form to database, marking it as unfinished, and add it to the unfinshed table '''
 
-        title = self.ent_title.get()
-        author = self.ent_author.get()
+        title = self.ent_title.get().strip()        # clear leading and trailing whitespace
+        author = self.ent_author.get().strip()
 
-        sqlite.insert_book(title, author)
+        was_successful = sqlite.insert_book(title, author)
+
+        if was_successful: 
+            self.unfinished_tree.insert('', tk.END, values=(title, author))
+
+            # clear the form entries
+            self.ent_title.delete(0, tk.END)
+            self.ent_author.delete(0, tk.END)
+
+        
 
     def load(self):
         ''' load books from db into tables'''
