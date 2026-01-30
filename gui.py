@@ -148,6 +148,11 @@ class App(tk.Tk):
         title = self.ent_title.get().strip()        # clear leading and trailing whitespace
         author = self.ent_author.get().strip()
 
+        # check to make sure neither title nor author is empty
+        if title == "" or author == "":
+            print("Title and author must be non-empty")
+            return
+
         was_successful = sqlite.insert_book(title, author)
 
         if was_successful: 
