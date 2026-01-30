@@ -21,16 +21,16 @@ class App(tk.Tk):
         self.frm_tables = tk.Frame(self)
 
         self.frm_form.grid(row=0, column=0)
-        self.frm_tables.grid(row=0, column=1, padx=20)
+        self.frm_tables.grid(row=0, column=1, padx=10)
 
         # Frames for each section: reading, unfinished, & finished
         self.frm_reading = tk.Frame(self.frm_tables)
         self.frm_unfinished = tk.Frame(self.frm_tables)
         self.frm_finished = tk.Frame(self.frm_tables)
 
-        self.frm_reading.grid(row=0, column=0, padx=10)
-        self.frm_unfinished.grid(row=0, column=1, padx=10)
-        self.frm_finished.grid(row=0, column=2, padx=10)
+        self.frm_reading.grid(row=0, column=0, padx=5)
+        self.frm_unfinished.grid(row=0, column=1, padx=5)
+        self.frm_finished.grid(row=0, column=2, padx=5)
         
         # Subframes for reading
         self.frm_reading_lbl = tk.Frame(self.frm_reading)
@@ -86,13 +86,19 @@ class App(tk.Tk):
         self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading_btns, text="Mark unfinished?", command=self.mark_unfinished)
         self.btn_reading_to_finished = tk.Button(master=self.frm_reading_btns, text="Mark finished?", command=self.mark_finished)
 
+        # Scrollbar for tree
+        self.reading_scrollbar = ttk.Scrollbar(self.frm_reading_tree, orient="vertical")
+
         # Define columns 
         columns = ('book_title', 'book_author')
-        self.reading_tree = ttk.Treeview(self.frm_reading_tree, columns=columns, show='headings') # 'show="headings"' hides the default #0 column
+        self.reading_tree = ttk.Treeview(self.frm_reading_tree, columns=columns, show='headings', yscrollcommand=self.reading_scrollbar) # 'show="headings"' hides the default #0 column
 
         # Define headings
         self.reading_tree.heading('book_title', text='Title')
         self.reading_tree.heading('book_author', text='Author')
+
+        self.reading_scrollbar.configure(command=self.reading_tree.yview)
+        
 
 
         # Unfinished
@@ -100,13 +106,19 @@ class App(tk.Tk):
         self.lbl_unfinished = tk.Label(master=self.frm_unfinished_lbl, text="Unfinished Books")
         self.btn_unfinished_to_reading = tk.Button(master=self.frm_unfinished_btns, text="Begin Reading?", command=self.begin_reading)
 
+        # Scrollbar for tree
+        self.unfinished_scrollbar = ttk.Scrollbar(self.frm_unfinished_tree, orient="vertical")
+
         # Define columns 
         columns = ('book_title', 'book_author')
-        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings') 
+        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings', yscrollcommand=self.unfinished_scrollbar.set) 
 
         # Define headings
         self.unfinished_tree.heading('book_title', text='Title')
         self.unfinished_tree.heading('book_author', text='Author')
+
+        self.unfinished_scrollbar.configure(command=self.unfinished_tree.yview)
+
 
 
         #Finished
@@ -114,13 +126,18 @@ class App(tk.Tk):
         self.lbl_finished = tk.Label(master=self.frm_finished_lbl, text="Finished Books")
         self.btn_finished_to_reading = tk.Button(master=self.frm_finished_btns, text="Reread?", command=self.reread)
 
+        # Scrollbar for tree
+        self.finished_scrollbar = ttk.Scrollbar(self.frm_finished_tree, orient="vertical")
+
         # finished tree
         columns = ('book_title', 'book_author')
-        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, show='headings')
+        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, show='headings', yscrollcommand=self.finished_scrollbar.set)
 
         # Define headings
         self.finished_tree.heading('book_title', text='Title')
         self.finished_tree.heading('book_author', text='Author')
+
+        self.finished_scrollbar.configure(command=self.finished_tree.yview)
 
         
 
@@ -132,16 +149,22 @@ class App(tk.Tk):
         self.btn_reading_to_unfinished.grid(row=0, column=0, padx=10)
         self.btn_reading_to_finished.grid(row=0, column=1)
         self.reading_tree.grid(row=0, column=0)
+        self.reading_scrollbar.grid(row=0, column=1)
+
 
         self.lbl_unfinished.grid(row=0, column=0, pady=5)
         self.btn_unfinished_to_reading.grid(row=0, column=0, padx=10)
         self.unfinished_tree.grid(row=0, column=0)
+        self.unfinished_scrollbar.grid(row=0, column=1)
+
 
         self.lbl_finished.grid(row=0, column=0, pady=5)
         self.btn_finished_to_reading.grid(row=0, column=0, padx=10)
         self.finished_tree.grid(row=0, column=0)
+        self.finished_scrollbar.grid(row=0, column=1)
 
     
+
     def submit(self):
         ''' add book from form to database, marking it as unfinished, and add it to the unfinshed table '''
 
