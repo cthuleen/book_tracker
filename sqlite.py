@@ -29,6 +29,21 @@ def insert_book(title, author):
     ''' Add a new record, a book, to the Book table'''
 
     with sqlite3.connect('db/my_database.db') as connection:
+
+        # check to make sure book hasn't already been inserted
+        # NB: book titles are allowed to repeat across authors, but not for the same author
+
+        books_by_author = fetch_books_by_author(author)
+
+        for book in books_by_author:
+
+            existing_title = book[1]
+
+            if title == existing_title:
+                print("Book already exists!")
+                return
+
+
         cursor = connection.cursor()
 
         insert_query = '''
@@ -128,6 +143,15 @@ def fetch():
         return (currently_reading, finished, unfinished)
 
 
-        
+def fetch_books_by_author(author):
+    ''' fetch all books by an author '''
 
-        
+    with sqlite3.connect('db/my_database.db') as connection:
+
+        cursor = connection.cursor()
+
+        select_authors_books= "SELECT * FROM Books WHERE author = ?;"
+        cursor.execute(select_authors_books, (author, ))
+        authors_books = cursor.fetchall()
+
+        return authors_books
