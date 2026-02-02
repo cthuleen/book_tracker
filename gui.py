@@ -21,7 +21,7 @@ class App(tk.Tk):
         self.frm_tables = tk.Frame(self)
 
         self.frm_form.grid(row=0, column=0)
-        self.frm_tables.grid(row=0, column=1, padx=10)
+        self.frm_tables.grid(row=1, column=0, padx=10)
 
         # Frames for each section: reading, unfinished, & finished
         self.frm_reading = tk.Frame(self.frm_tables)
@@ -91,7 +91,10 @@ class App(tk.Tk):
 
         # Define columns 
         columns = ('book_title', 'book_author')
-        self.reading_tree = ttk.Treeview(self.frm_reading_tree, columns=columns, show='headings', yscrollcommand=self.reading_scrollbar) # 'show="headings"' hides the default #0 column
+        self.reading_tree = ttk.Treeview(self.frm_reading_tree, columns=columns, 
+                                         show='headings', yscrollcommand=self.reading_scrollbar,
+                                         selectmode='browse') # 'show="headings"' hides the default #0 column
+        self.reading_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
 
         # Define headings
         self.reading_tree.heading('book_title', text='Title')
@@ -111,7 +114,10 @@ class App(tk.Tk):
 
         # Define columns 
         columns = ('book_title', 'book_author')
-        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, show='headings', yscrollcommand=self.unfinished_scrollbar.set) 
+        self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, 
+                                            show='headings', yscrollcommand=self.unfinished_scrollbar.set,
+                                            selectmode='browse') 
+        self.unfinished_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
 
         # Define headings
         self.unfinished_tree.heading('book_title', text='Title')
@@ -131,7 +137,10 @@ class App(tk.Tk):
 
         # finished tree
         columns = ('book_title', 'book_author')
-        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, show='headings', yscrollcommand=self.finished_scrollbar.set)
+        self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, 
+                                          show='headings', yscrollcommand=self.finished_scrollbar.set,
+                                          selectmode='browse')
+        self.finished_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
 
         # Define headings
         self.finished_tree.heading('book_title', text='Title')
@@ -163,6 +172,28 @@ class App(tk.Tk):
         self.finished_tree.grid(row=0, column=0)
         self.finished_scrollbar.grid(row=0, column=1)
 
+
+    def on_tree_select(self, event):
+        ''' allow only one entry to be selected among all tables at a given moment'''
+        
+
+        current_tree = event.widget
+
+        selected_items = current_tree.selection()
+        
+        # Ensures that the following code won't execute as part of any of the following selection shenanigans
+        if selected_items: 
+            if current_tree == self.reading_tree:
+                self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
+                self.finished_tree.selection_remove(self.finished_tree.selection())
+
+            if current_tree == self.unfinished_tree:
+                self.reading_tree.selection_remove(self.reading_tree.selection())
+                self.finished_tree.selection_remove(self.finished_tree.selection())
+
+            if current_tree == self.finished_tree:
+                self.reading_tree.selection_remove(self.reading_tree.selection())
+                self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
     
 
     def submit(self):
