@@ -23,6 +23,13 @@ class App(tk.Tk):
         self.frm_form.grid(row=0, column=0)
         self.frm_tables.grid(row=1, column=0, padx=10)
 
+        # Frames for the submission and edit forms
+        self.frm_form_submit = tk.Frame(self.frm_form)
+        self.frm_form_edit = tk.Frame(self.frm_form)
+
+        self.frm_form_submit.grid(row=0, column=0, padx=20, pady=10)
+        self.frm_form_edit.grid(row=0, column=1, padx=20, pady=10)
+
         # Frames for each section: reading, unfinished, & finished
         self.frm_reading = tk.Frame(self.frm_tables)
         self.frm_unfinished = tk.Frame(self.frm_tables)
@@ -62,15 +69,15 @@ class App(tk.Tk):
         self.frm_finished_btns.grid(row=2, column=0, pady=5)
 
         
-
+        # Submit form
         # widgets for the book submission form (two label/entry pairs and a button)
-        self.lbl_title = tk.Label(master=self.frm_form, text="Enter book title:")
-        self.ent_title = tk.Entry(master=self.frm_form, width=20)
+        self.lbl_title = tk.Label(master=self.frm_form_submit, text="Enter book title:")
+        self.ent_title = tk.Entry(master=self.frm_form_submit, width=20)
 
-        self.lbl_author = tk.Label(master=self.frm_form, text="Enter book author:")
-        self.ent_author = tk.Entry(master=self.frm_form, width=20)
+        self.lbl_author = tk.Label(master=self.frm_form_submit, text="Enter book author:")
+        self.ent_author = tk.Entry(master=self.frm_form_submit, width=20)
 
-        self.btn_form = tk.Button(master=self.frm_form, text="Add", command=self.submit)
+        self.btn_form = tk.Button(master=self.frm_form_submit, text="Add", command=self.submit)
 
         self.lbl_title.grid(row=0, column=0, pady=5, sticky="E")
         self.ent_title.grid(row=0, column=1, pady=5)
@@ -78,6 +85,23 @@ class App(tk.Tk):
         self.ent_author.grid(row=1, column=1)
 
         self.btn_form.grid(row=2, column=1, sticky="EW", pady=5)
+
+
+        # Edit frame
+        self.lbl_selected_title = tk.Label(master=self.frm_form_edit, text="Selected book title:")
+        self.ent_selected_title = tk.Entry(master=self.frm_form_edit, width=20)
+
+        self.lbl_selected_author = tk.Label(master=self.frm_form_edit, text="Selected book author:")
+        self.ent_selected_author = tk.Entry(master=self.frm_form_edit, width=20)
+
+        self.btn_form_edit = tk.Button(master=self.frm_form_edit, text="Change")
+
+        self.lbl_selected_title.grid(row=0, column=0, pady=5, sticky="E")
+        self.ent_selected_title.grid(row=0, column=1, pady=5)
+        self.lbl_selected_author.grid(row=1, column=0, sticky="E")
+        self.ent_selected_author.grid(row=1, column=1)
+
+        self.btn_form_edit.grid(row=2, column=1, sticky="EW", pady=5)
 
 
         # Reading
@@ -181,19 +205,38 @@ class App(tk.Tk):
 
         selected_items = current_tree.selection()
         
+        # Clear the other two trees of their selection
         # Ensures that the following code won't execute as part of any of the following selection shenanigans
         if selected_items: 
+
             if current_tree == self.reading_tree:
                 self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
                 self.finished_tree.selection_remove(self.finished_tree.selection())
+                item_values = self.reading_tree.item(selected_items[0], 'values')
 
             if current_tree == self.unfinished_tree:
                 self.reading_tree.selection_remove(self.reading_tree.selection())
                 self.finished_tree.selection_remove(self.finished_tree.selection())
+                item_values = self.unfinished_tree.item(selected_items[0], 'values')
 
             if current_tree == self.finished_tree:
                 self.reading_tree.selection_remove(self.reading_tree.selection())
                 self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
+                item_values = self.finished_tree.item(selected_items[0], 'values')
+
+
+            
+
+            # Update the edit form's text
+            title = item_values[0]
+            author = item_values[1]
+
+            self.ent_selected_author.delete(0, tk.END)
+            self.ent_selected_title.delete(0, tk.END)
+
+            self.ent_selected_author.insert(0, author)
+            self.ent_selected_title.insert(0, title)
+
     
 
     def submit(self):
