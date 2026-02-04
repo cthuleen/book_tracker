@@ -72,10 +72,22 @@ def update_book(old_title, old_author, new_title, new_author):
         cursor = connection.cursor()
 
         # validate input...
+        # NB: book titles are allowed to repeat across authors, but not for the same author
+
+        books_by_author = fetch_books_by_author(new_author)
+
+        for book in books_by_author:
+
+            existing_title = book[1]
+
+            if new_title == existing_title:
+                print("Book already exists!")
+                return False
+
 
         update_query = '''
         UPDATE Books 
-        SET title = ? AND author = ?
+        SET title = ?, author = ?
         WHERE title = ? AND author = ?;
         '''
 
@@ -84,6 +96,7 @@ def update_book(old_title, old_author, new_title, new_author):
         connection.commit()
 
         print(f"Updated {old_title} by {old_author} to {new_title} by {new_author}")
+        return True
 
 
 def start_reading(title, author):
@@ -142,6 +155,20 @@ def mark_finished(title, author):
 
         print(f"Updated reading status for {title} by {author} to NO.")
 
+
+def fetch_book(title, author):
+    ''' fetch a single book from the table, if it exists'''
+
+    with sqlite3.connect('db/my_database.db') as connection:
+
+        cursor = connection.cursor()
+
+        select_authors_books= "SELECT * FROM Books WHERE title = ? AND author = ?;"
+        cursor.execute(select_authors_books, (title, author))
+        book = cursor.fetchall()
+
+        return book
+    
 
 def fetch():
     '''Fetch all the books from the table and sort them into currently reading, finished, and unfinished'''

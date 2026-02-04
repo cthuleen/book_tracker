@@ -107,7 +107,7 @@ class App(tk.Tk):
         # Reading
         # currently reading table frame
         self.lbl_reading = tk.Label(master=self.frm_reading_lbl, text="Currently Reading")
-        self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading_btns, text="Mark unfinished?", command=self.mark_unfinished)
+        self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading_btns, text="Mark unfinished?", command=self.didnt_finish)
         self.btn_reading_to_finished = tk.Button(master=self.frm_reading_btns, text="Mark finished?", command=self.mark_finished)
 
         # Scrollbar for tree
@@ -266,12 +266,41 @@ class App(tk.Tk):
         title = self.ent_selected_title.get().strip()        # clear leading and trailing whitespace
         author = self.ent_selected_author.get().strip()
 
-        # check to make sure neither title nor author is empty
+        # check if title or author is empty
         if title == "" or author == "":
             print("Title and author must be non-empty")
             return
+        
 
-        was_successful = True #sqlite.change(title, author)
+        # Get old_title and old_author from selected tree item
+
+        # find the tree entry that was selected
+
+        # Reading tree
+        reading_item_id= self.reading_tree.selection()
+
+        if reading_item_id:
+            values = self.reading_tree.item(reading_item_id[0])['values']
+
+
+        # Unfinished tree
+        unfinished_item_id= self.unfinished_tree.selection()
+
+        if unfinished_item_id:
+            values = self.unfinished_tree.item(unfinished_item_id[0])['values']
+
+
+        # Finished tree
+        finished_item_id= self.finished_tree.selection()
+
+        if finished_item_id:
+            values = self.finished_tree.item(finished_item_id[0])['values']
+
+        print(values)
+        print(title, author)
+
+        was_successful = sqlite.update_book(values[0], values[1], title, author)
+
 
         if was_successful: 
             
@@ -346,7 +375,8 @@ class App(tk.Tk):
 
 
     # Functions for books in Reading
-    def mark_unfinished(self):
+    def didnt_finish(self):
+        ''' if the book has been finished before, it goes back to finished; else it goes back to unfinished'''
         selected_item = self.reading_tree.selection()
 
         if selected_item:
@@ -354,7 +384,15 @@ class App(tk.Tk):
             item_data = self.reading_tree.item(item_id, 'values') 
 
             self.reading_tree.delete(item_id)
-            self.unfinished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
+
+            book = sqlite.fetch_book(item_data[0], item_data[1])[0] # get the only book returned from the set
+            times_read = book[4]
+
+            if times_read == 0:
+                self.unfinished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
+            else:
+                self.finished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
+
 
             sqlite.mark_unfinished(item_data[0], item_data[1])
 
