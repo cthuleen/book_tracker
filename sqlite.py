@@ -65,6 +65,27 @@ def insert_book(title, author):
         return True
 
 
+def update_book(old_title, old_author, new_title, new_author):
+    ''' Update the title, author, or both of a book record '''
+
+    with sqlite3.connect('db/my_database.db') as connection:
+        cursor = connection.cursor()
+
+        # validate input...
+
+        update_query = '''
+        UPDATE Books 
+        SET title = ? AND author = ?
+        WHERE title = ? AND author = ?;
+        '''
+
+        cursor.execute(update_query, (new_title, new_author, old_title, old_author))
+
+        connection.commit()
+
+        print(f"Updated {old_title} by {old_author} to {new_title} by {new_author}")
+
+
 def start_reading(title, author):
     ''' Update is_reading of a book from NO to YES '''
 

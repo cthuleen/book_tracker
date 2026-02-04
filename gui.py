@@ -94,7 +94,7 @@ class App(tk.Tk):
         self.lbl_selected_author = tk.Label(master=self.frm_form_edit, text="Selected book author:")
         self.ent_selected_author = tk.Entry(master=self.frm_form_edit, width=20)
 
-        self.btn_form_edit = tk.Button(master=self.frm_form_edit, text="Change")
+        self.btn_form_edit = tk.Button(master=self.frm_form_edit, text="Change", command=self.change)
 
         self.lbl_selected_title.grid(row=0, column=0, pady=5, sticky="E")
         self.ent_selected_title.grid(row=0, column=1, pady=5)
@@ -254,6 +254,49 @@ class App(tk.Tk):
 
         if was_successful: 
             self.unfinished_tree.insert('', tk.END, values=(title, author))
+
+            # clear the form entries
+            self.ent_title.delete(0, tk.END)
+            self.ent_author.delete(0, tk.END)
+
+
+    def change(self):
+        ''' change the selected book's title, author, or both; if the DB update clears, update the tree entry, too'''
+
+        title = self.ent_selected_title.get().strip()        # clear leading and trailing whitespace
+        author = self.ent_selected_author.get().strip()
+
+        # check to make sure neither title nor author is empty
+        if title == "" or author == "":
+            print("Title and author must be non-empty")
+            return
+
+        was_successful = True #sqlite.change(title, author)
+
+        if was_successful: 
+            
+            # find the tree entry that was selected
+
+            # Reading tree
+            reading_item_id= self.reading_tree.selection()
+
+            if reading_item_id:
+                self.reading_tree.item(reading_item_id[0], values=(title, author))
+
+
+            # Unfinished tree
+            unfinished_item_id= self.unfinished_tree.selection()
+
+            if unfinished_item_id:
+                self.unfinished_tree.item(unfinished_item_id[0], values=(title, author))
+
+
+            # Finished tree
+            finished_item_id= self.finished_tree.selection()
+
+            if finished_item_id:
+                self.finished_tree.item(finished_item_id[0], values=(title, author))
+
 
             # clear the form entries
             self.ent_title.delete(0, tk.END)
