@@ -1,4 +1,4 @@
-This is a small project I'm using to practice desktop app development.
+This is a small desktop app built using Tkinter and SQLite
 
 The app can track books you've read and displays them under 3 different tables.
 
