@@ -211,15 +211,14 @@ class App(tk.Tk):
 
 
     def on_tree_select(self, event):
-        ''' allow only one entry to be selected among all tables at a given moment'''
-        
+        ''' On table entry click, clear the previous table of its selection to enforce only one selection across all tables at a time'''
 
         current_tree = event.widget
 
         selected_items = current_tree.selection()
         
         # Clear the other two trees of their selection
-        # Ensures that the following code won't execute as part of any of the following selection shenanigans
+        # If statement ensures that the following code won't execute as part of any of the following selection shenanigans
         if selected_items: 
 
             if current_tree == self.reading_tree:
@@ -238,14 +237,12 @@ class App(tk.Tk):
                 item_values = self.finished_tree.item(selected_items[0], 'values')
 
 
-            
-
-            # Update the edit form's text
-            title = item_values[0]
-            author = item_values[1]
-
+            # Update the edit form's text to display selected entry's title and author
             self.ent_selected_author.delete(0, tk.END)
             self.ent_selected_title.delete(0, tk.END)
+            
+            title = item_values[0]
+            author = item_values[1]
 
             self.ent_selected_author.insert(0, author)
             self.ent_selected_title.insert(0, title)
@@ -253,7 +250,7 @@ class App(tk.Tk):
     
 
     def submit(self):
-        ''' add book from form to database, marking it as unfinished, and add it to the unfinshed table '''
+        ''' add book from submit form to database, marking it as unfinished, and add it to the unfinshed table '''
 
         title = self.ent_title.get().strip()        # clear leading and trailing whitespace
         author = self.ent_author.get().strip()
@@ -274,7 +271,7 @@ class App(tk.Tk):
 
 
     def change(self):
-        ''' change the selected book's title, author, or both; if the DB update clears, update the tree entry, too'''
+        ''' change the selected book's title, author, or both based on edit form; if the DB update clears, update the tree entry, too'''
 
         title = self.ent_selected_title.get().strip()        # clear leading and trailing whitespace
         author = self.ent_selected_author.get().strip()
@@ -285,64 +282,56 @@ class App(tk.Tk):
             return
         
 
-        # Get old_title and old_author from selected tree item
-
-        # find the tree entry that was selected
+        # Determine which tree the selection is from, and update the entry in said tree
 
         # Reading tree
-        reading_item_id= self.reading_tree.selection()
+        reading_item_id = self.reading_tree.selection()
 
         if reading_item_id:
             values = self.reading_tree.item(reading_item_id[0])['values']
 
+            was_successful = sqlite.update_book(values[0], values[1], title, author)
+
+            if was_successful:
+                self.reading_tree.item(reading_item_id[0], values=(title, author))
+
+                # clear the form entries
+                self.ent_title.delete(0, tk.END)
+                self.ent_author.delete(0, tk.END)
+
 
         # Unfinished tree
-        unfinished_item_id= self.unfinished_tree.selection()
+        unfinished_item_id = self.unfinished_tree.selection()
 
         if unfinished_item_id:
             values = self.unfinished_tree.item(unfinished_item_id[0])['values']
 
+            was_successful = sqlite.update_book(values[0], values[1], title, author)
+
+            if was_successful:
+                self.unfinished_tree.item(unfinished_item_id[0], values=(title, author))
+
+                # clear the form entries
+                self.ent_title.delete(0, tk.END)
+                self.ent_author.delete(0, tk.END)
+
 
         # Finished tree
-        finished_item_id= self.finished_tree.selection()
+        finished_item_id = self.finished_tree.selection()
 
         if finished_item_id:
             values = self.finished_tree.item(finished_item_id[0])['values']
 
-        print(values)
-        print(title, author)
+            was_successful = sqlite.update_book(values[0], values[1], title, author)
 
-        was_successful = sqlite.update_book(values[0], values[1], title, author)
-
-
-        if was_successful: 
-            
-            # find the tree entry that was selected
-
-            # Reading tree
-            reading_item_id= self.reading_tree.selection()
-
-            if reading_item_id:
-                self.reading_tree.item(reading_item_id[0], values=(title, author))
-
-
-            # Unfinished tree
-            unfinished_item_id= self.unfinished_tree.selection()
-
-            if unfinished_item_id:
-                self.unfinished_tree.item(unfinished_item_id[0], values=(title, author))
-
-
-            # Finished tree
-            finished_item_id= self.finished_tree.selection()
-
-            if finished_item_id:
+            if was_successful:
                 self.finished_tree.item(finished_item_id[0], values=(title, author))
 
+                # clear the form entries
+                self.ent_title.delete(0, tk.END)
+                self.ent_author.delete(0, tk.END)
 
-            # clear the form entries
-            self.ent_title.delete(0, tk.END)
-            self.ent_author.delete(0, tk.END)
+            
 
         
 
