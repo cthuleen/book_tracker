@@ -108,7 +108,7 @@ class App(tk.Tk):
         # currently reading table frame
         self.lbl_reading = tk.Label(master=self.frm_reading_lbl, text="Currently Reading")
         self.btn_reading_to_unfinished = tk.Button(master=self.frm_reading_btns, text="Mark unfinished?", command=self.didnt_finish)
-        self.btn_reading_to_finished = tk.Button(master=self.frm_reading_btns, text="Mark finished?", command=self.mark_finished)
+        self.btn_reading_to_finished = tk.Button(master=self.frm_reading_btns, text="Mark finished?", command=self.did_finish)
 
         # Scrollbar for tree
         self.reading_scrollbar = ttk.Scrollbar(self.frm_reading_tree, orient="vertical")
@@ -394,10 +394,10 @@ class App(tk.Tk):
                 self.finished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
 
 
-            sqlite.mark_unfinished(item_data[0], item_data[1])
+            sqlite.didnt_finish(item_data[0], item_data[1])
 
     
-    def mark_finished(self):
+    def did_finish(self):
         selected_item = self.reading_tree.selection() 
 
         if selected_item:
@@ -407,7 +407,7 @@ class App(tk.Tk):
             self.reading_tree.delete(item_id)
             self.finished_tree.insert('', tk.END, values=(item_data[0], item_data[1]))
 
-            sqlite.mark_finished(item_data[0], item_data[1])
+            sqlite.did_finish(item_data[0], item_data[1])
 
 
     # def __init__(self):

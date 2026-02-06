@@ -1,7 +1,7 @@
 import sqlite3
 
 def create_table():
-    ''' Create the Book table, if it doesn't exist'''
+    ''' Create the Book table, if it doesn't exist '''
 
     with sqlite3.connect('db/my_database.db') as connection:
 
@@ -21,13 +21,14 @@ def create_table():
 
         connection.commit()
 
-        print("Database created and connected successfully!")
+        print("Database created and/or connected successfully!")
 
 
 
 def insert_book(title, author):
     ''' 
-        Add a new record, a book, to the Book table
+        Add a new record to the Book table, if it is a unique author/title pair
+
         Returns False if not valid input, and True otherwise
     '''
 
@@ -66,7 +67,11 @@ def insert_book(title, author):
 
 
 def update_book(old_title, old_author, new_title, new_author):
-    ''' Update the title, author, or both of a book record '''
+    ''' 
+        Update the title, author, or both of a book record 
+
+        Must not violate the author/title pair uniqueness rule    
+    '''
 
     with sqlite3.connect('db/my_database.db') as connection:
         cursor = connection.cursor()
@@ -118,7 +123,7 @@ def start_reading(title, author):
         print(f"Updated reading status for {title} by {author} to YES.")
 
 
-def mark_unfinished(title, author):
+def didnt_finish(title, author):
     ''' Update is_reading of a book from YES to NO '''
 
     with sqlite3.connect('db/my_database.db') as connection:
@@ -137,7 +142,7 @@ def mark_unfinished(title, author):
         print(f"Updated reading status for {title} by {author} to NO.")
 
 
-def mark_finished(title, author):
+def did_finish(title, author):
     ''' Update is_reading of a book from YES to NO and increment times_read'''
 
     with sqlite3.connect('db/my_database.db') as connection:
@@ -171,7 +176,13 @@ def fetch_book(title, author):
     
 
 def fetch():
-    '''Fetch all the books from the table and sort them into currently reading, finished, and unfinished'''
+    '''
+        Fetch all records from Book table, then sort them into the three divisions
+
+        Currently Reading: books that are currently being read
+        Finished: books that have been finished at least once and are not being read currently
+        Unfinished: books that have never been finished and are not being read currently
+    '''
 
     with sqlite3.connect('db/my_database.db') as connection:
 
