@@ -8,7 +8,16 @@ class App(tk.Tk):
     '''
 
     def __init__(self):
-        ''' add description here '''
+        ''' 
+            Initialize the database and set up the app window
+            
+            App comprises:
+                - submission form
+                - edit form
+                - Currently reading table + buttons
+                - Unfinished table + button
+                - Finished table + button
+        '''
 
         tk.Tk.__init__(self)
         self.title("Reading Tracker")
@@ -16,61 +25,24 @@ class App(tk.Tk):
         # create DB and table if needed
         sqlite.create_table()
 
-        # init frames and the window's columns
+        # init form and table frames
         self.frm_form = tk.Frame(self)
         self.frm_tables = tk.Frame(self)
 
         self.frm_form.grid(row=0, column=0)
         self.frm_tables.grid(row=1, column=0, padx=10)
 
-        # Frames for the submission and edit forms
+
+        # Submission and Edit Forms
+
+        # Frames 
         self.frm_form_submit = tk.Frame(self.frm_form)
         self.frm_form_edit = tk.Frame(self.frm_form)
 
         self.frm_form_submit.grid(row=0, column=0, padx=20, pady=10)
         self.frm_form_edit.grid(row=0, column=1, padx=20, pady=10)
 
-        # Frames for each section: reading, unfinished, & finished
-        self.frm_reading = tk.Frame(self.frm_tables)
-        self.frm_unfinished = tk.Frame(self.frm_tables)
-        self.frm_finished = tk.Frame(self.frm_tables)
-
-        self.frm_reading.grid(row=0, column=0, padx=5)
-        self.frm_unfinished.grid(row=0, column=1, padx=5)
-        self.frm_finished.grid(row=0, column=2, padx=5)
-        
-        # Subframes for reading
-        self.frm_reading_lbl = tk.Frame(self.frm_reading)
-        self.frm_reading_tree = tk.Frame(self.frm_reading)
-        self.frm_reading_btns = tk.Frame(self.frm_reading)
-        
-        self.frm_reading_lbl.grid(row=0, column=0)
-        self.frm_reading_tree.grid(row=1, column=0, pady=5)
-        self.frm_reading_btns.grid(row=2, column=0, pady=5)
-        
-
-        # Subframes for unfinished
-        self.frm_unfinished_lbl = tk.Frame(self.frm_unfinished)
-        self.frm_unfinished_tree = tk.Frame(self.frm_unfinished)
-        self.frm_unfinished_btns = tk.Frame(self.frm_unfinished)
-
-        self.frm_unfinished_lbl.grid(row=0, column=0)
-        self.frm_unfinished_tree.grid(row=1, column=0, pady=5)
-        self.frm_unfinished_btns.grid(row=2, column=0, pady=5)
-
-
-        # Subframes for finished
-        self.frm_finished_lbl = tk.Frame(self.frm_finished)
-        self.frm_finished_tree = tk.Frame(self.frm_finished)
-        self.frm_finished_btns = tk.Frame(self.frm_finished)
-
-        self.frm_finished_lbl.grid(row=0, column=0)
-        self.frm_finished_tree.grid(row=1, column=0, pady=5)
-        self.frm_finished_btns.grid(row=2, column=0, pady=5)
-
-        
-        # Submit form
-        # widgets for the book submission form (two label/entry pairs and a button)
+        # Submit form widgets
         self.lbl_title = tk.Label(master=self.frm_form_submit, text="Enter book title:")
         self.ent_title = tk.Entry(master=self.frm_form_submit, width=20)
 
@@ -87,7 +59,7 @@ class App(tk.Tk):
         self.btn_form.grid(row=2, column=1, sticky="EW", pady=5)
 
 
-        # Edit frame
+        # Edit frame widgets
         self.lbl_selected_title = tk.Label(master=self.frm_form_edit, text="Selected book title:")
         self.ent_selected_title = tk.Entry(master=self.frm_form_edit, width=20)
 
@@ -102,6 +74,47 @@ class App(tk.Tk):
         self.ent_selected_author.grid(row=1, column=1)
 
         self.btn_form_edit.grid(row=2, column=1, sticky="EW", pady=5)
+
+
+        # Book tables
+
+        # Frames for each book section: reading, unfinished, & finished
+        self.frm_reading = tk.Frame(self.frm_tables)
+        self.frm_unfinished = tk.Frame(self.frm_tables)
+        self.frm_finished = tk.Frame(self.frm_tables)
+
+        self.frm_reading.grid(row=0, column=0, padx=5)
+        self.frm_unfinished.grid(row=0, column=1, padx=5)
+        self.frm_finished.grid(row=0, column=2, padx=5)
+        
+        # Subframes for reading lbl, tree, and btns
+        self.frm_reading_lbl = tk.Frame(self.frm_reading)
+        self.frm_reading_tree = tk.Frame(self.frm_reading)
+        self.frm_reading_btns = tk.Frame(self.frm_reading)
+        
+        self.frm_reading_lbl.grid(row=0, column=0)
+        self.frm_reading_tree.grid(row=1, column=0, pady=5)
+        self.frm_reading_btns.grid(row=2, column=0, pady=5)
+        
+
+        # Subframes for unfinished lbl, tree, and btn
+        self.frm_unfinished_lbl = tk.Frame(self.frm_unfinished)
+        self.frm_unfinished_tree = tk.Frame(self.frm_unfinished)
+        self.frm_unfinished_btns = tk.Frame(self.frm_unfinished)
+
+        self.frm_unfinished_lbl.grid(row=0, column=0)
+        self.frm_unfinished_tree.grid(row=1, column=0, pady=5)
+        self.frm_unfinished_btns.grid(row=2, column=0, pady=5)
+
+
+        # Subframes for finished lbl, tree, and btn
+        self.frm_finished_lbl = tk.Frame(self.frm_finished)
+        self.frm_finished_tree = tk.Frame(self.frm_finished)
+        self.frm_finished_btns = tk.Frame(self.frm_finished)
+
+        self.frm_finished_lbl.grid(row=0, column=0)
+        self.frm_finished_tree.grid(row=1, column=0, pady=5)
+        self.frm_finished_btns.grid(row=2, column=0, pady=5)
 
 
         # Reading
@@ -172,25 +185,25 @@ class App(tk.Tk):
 
         self.finished_scrollbar.configure(command=self.finished_tree.yview)
 
-        
-
 
         # load books from db into tables
         self.load()
 
+
+        # Place widgets of Currently Reading section in their respective subframes
         self.lbl_reading.grid(row=0, column=0, pady=5)
         self.btn_reading_to_unfinished.grid(row=0, column=0, padx=10)
         self.btn_reading_to_finished.grid(row=0, column=1)
         self.reading_tree.grid(row=0, column=0)
         self.reading_scrollbar.grid(row=0, column=1)
 
-
+        # Place widgets of Unfinished section in their respective subframes
         self.lbl_unfinished.grid(row=0, column=0, pady=5)
         self.btn_unfinished_to_reading.grid(row=0, column=0, padx=10)
         self.unfinished_tree.grid(row=0, column=0)
         self.unfinished_scrollbar.grid(row=0, column=1)
 
-
+        # Place widgets of Finished section in their respective subframes
         self.lbl_finished.grid(row=0, column=0, pady=5)
         self.btn_finished_to_reading.grid(row=0, column=0, padx=10)
         self.finished_tree.grid(row=0, column=0)
