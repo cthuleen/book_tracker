@@ -131,7 +131,10 @@ class App(tk.Tk):
         self.reading_tree = ttk.Treeview(self.frm_reading_tree, columns=columns, 
                                          show='headings', yscrollcommand=self.reading_scrollbar,
                                          selectmode='browse') # 'show="headings"' hides the default #0 column
+        
+        # bind the on_tree_select fn to both click and double click, meaning a double click will quickly select then unselect an item
         self.reading_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
+        self.reading_tree.bind('<Double-1>', self.on_tree_select) 
 
         # Define headings
         self.reading_tree.heading('book_title', text='Title')
@@ -154,7 +157,10 @@ class App(tk.Tk):
         self.unfinished_tree = ttk.Treeview(self.frm_unfinished_tree, columns=columns, 
                                             show='headings', yscrollcommand=self.unfinished_scrollbar.set,
                                             selectmode='browse') 
+        
+        # bind the on_tree_select fn to both click and double click, meaning a double click will quickly select then unselect an item
         self.unfinished_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
+        self.unfinished_tree.bind('<Double-1>', self.on_tree_select) 
 
         # Define headings
         self.unfinished_tree.heading('book_title', text='Title')
@@ -177,7 +183,10 @@ class App(tk.Tk):
         self.finished_tree = ttk.Treeview(self.frm_finished_tree, columns=columns, 
                                           show='headings', yscrollcommand=self.finished_scrollbar.set,
                                           selectmode='browse')
+        
+        # bind the on_tree_select fn to both click and double click, meaning a double click will quickly select then unselect an item
         self.finished_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
+        self.finished_tree.bind('<Double-1>', self.on_tree_select) 
 
         # Define headings
         self.finished_tree.heading('book_title', text='Title')
@@ -209,6 +218,10 @@ class App(tk.Tk):
         self.finished_tree.grid(row=0, column=0)
         self.finished_scrollbar.grid(row=0, column=1)
 
+        # variables for on_tree_select, or should they default to empty string?
+        self.selected_title = None
+        self.selected_author = None
+
 
     def on_tree_select(self, event):
         ''' On table entry click, clear the previous table of its selection to enforce only one selection across all tables at a time'''
@@ -216,36 +229,63 @@ class App(tk.Tk):
         current_tree = event.widget
 
         selected_items = current_tree.selection()
+
+        reselection = False
         
         # Clear the other two trees of their selection
         # If statement ensures that the following code won't execute as part of any of the following selection shenanigans
         if selected_items: 
 
             if current_tree == self.reading_tree:
+
                 self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
                 self.finished_tree.selection_remove(self.finished_tree.selection())
                 item_values = self.reading_tree.item(selected_items[0], 'values')
+
+                # check if reselected current selection, and delete if so
+                if self.selected_author == item_values[1] and self.selected_title == item_values[0]:
+
+                    self.reading_tree.selection_remove(self.reading_tree.selection())
+                    reselection = True
+
 
             if current_tree == self.unfinished_tree:
                 self.reading_tree.selection_remove(self.reading_tree.selection())
                 self.finished_tree.selection_remove(self.finished_tree.selection())
                 item_values = self.unfinished_tree.item(selected_items[0], 'values')
 
+                if self.selected_author == item_values[1] and self.selected_title == item_values[0]:
+
+                    self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
+                    reselection = True
+
             if current_tree == self.finished_tree:
                 self.reading_tree.selection_remove(self.reading_tree.selection())
                 self.unfinished_tree.selection_remove(self.unfinished_tree.selection())
                 item_values = self.finished_tree.item(selected_items[0], 'values')
+
+                if self.selected_author == item_values[1] and self.selected_title == item_values[0]:
+
+                    self.finished_tree.selection_remove(self.finished_tree.selection())
+                    reselection = True
 
 
             # Update the edit form's text to display selected entry's title and author
             self.ent_selected_author.delete(0, tk.END)
             self.ent_selected_title.delete(0, tk.END)
             
-            title = item_values[0]
-            author = item_values[1]
+            if reselection:
+                title = ""
+                author = ""
+            else:
+                title = item_values[0]
+                author = item_values[1]
 
             self.ent_selected_author.insert(0, author)
             self.ent_selected_title.insert(0, title)
+
+            self.selected_author = author
+            self.selected_title = title
 
     
 
